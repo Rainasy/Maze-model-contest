@@ -1,0 +1,64 @@
+from __future__ import division
+from visual import *
+from physutil import *
+
+scene.center = (0.7, 1, 0)
+scene.title = "Maze Model"
+scene.background = color.black
+
+ball = sphere(radius = 0.1, color=color.blue)
+inclinedPlane = box(pos = vector(0.7,0,0), size = (1.4, 0.02, 0.2),
+                    color=color.green, opacity = 0.3)
+
+timerDisplay = PhysTimer(1.5, 1)
+
+# --------------------------------------------------------------
+# initial conditions
+# --------------------------------------------------------------
+
+
+ball.m = 0.3
+ball.pos = vector(0, 0.04, 0.78)
+ball.v = vector(0, 0, 0)
+
+theta_angle = input("빗면의 각도를 입력하세요 : ")
+theta = theta_angle * (pi / 180.0)
+
+inclinedPlane.rotate(angle = theta, origin = (0, 0, 0), axis = (0, 0, 1))
+ball.rotate(angle = theta, origin = (0, 0, 0), axis = (0, 0, 1))
+
+ball.v = norm(inclinedPlane.axis)
+ball.v.mag = 3
+
+g = 9.8
+mu = 0.20
+t = 0
+deltat = 0.0005
+
+print "initial ball position (m) ", ball.pos
+
+while ball.pos.y > 0.03 :
+    rate(1000)
+
+    Fnet = norm(inclinedPlane.axis)
+    Fnet.mag = -(ball.m * g * sin(theta))
+    if ball.v.y > 0:
+        Fnet.mag += (mu * ball.m * g * cos(theta))
+    else :
+        Fnet.mag -= (mu * ball.m * g * cos(theta))
+        
+    ball.v = ball.v + (Fnet/ball.m * deltat)
+
+    ball.pos = ball.pos + ball.v * deltat
+
+    timerDisplay.update(t)
+    t = t + deltat
+
+  # ----------------------------------------------------------------------
+  # Final Output
+  # ----------------------------------------------------------------------
+
+label1.pos = inclinedPlane.pos + vector(0,2,0)
+label1.text = 'final time (s): ', t
+
+
